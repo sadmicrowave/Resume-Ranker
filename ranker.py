@@ -345,12 +345,12 @@ if __name__ == "__main__" :
 	# You could also pass your own arguments instead of sys.argv with: docopt(__doc__, argv=[your, args])
 	docopt_args 	= docopt(__doc__, version='Resume Ranker 1.0.0')	
 	verbosity 		= docopt_args["-v"]
-	rename			= docopt_args["--rename"]
+	rename			= docopt_args["--rename"] or 'YES'
 	dir				= docopt_args["--dir"]
 	keyword_file 	= docopt_args["--keyword_file"]
 	
 	# normalize the rename option text to True/False
-	rename = True if rename.upper() == 'YES' else False
+	rename = True if rename and rename.upper() == 'YES' else False
 	
 	try :
 		# instantiate the environment object where we will check that all environment paths and file names are valid
