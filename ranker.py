@@ -8,16 +8,18 @@ file types include .docx, .pdf, and .txt. Any other filetype will be skipped aut
 
 	Usage:
 		ranker.py [-h | --help]
-		ranker.py [-v | --verbose] [--rename=<rename>] --dir=<dir> --keyword_file=<keywordfile>
+		ranker.py [-v | --verbose] [--rename=<rename>] --dir=<dir> --keyword-file=<keywordfile> [--output-type=<outputtype> --output-file=<outputfile>]
 		ranker.py --version
 
 	Options:
-		-h,--help	: show this help message
-		-v,--verbose    : display more text output
+		-h,--help	: show this help message.
+		-v,--verbose    : display more text output.
 		--rename : explicitly turn on/off the file renamer with yes/no option [default: yes].
-		--dir	: set the directory for resume review	
-		--keyword_file	: set the file path of the keyword file used in ranking each resume file contents
-		--version	: show version
+		--dir	: set the directory for resume review.
+		--keyword-file	: set the file path of the keyword file used in ranking each resume file contents.
+		--output-type	: set the output file type (csv or txt).  Must be used in conjunction with --output-file.
+		--output-file	: set the directory and filename of the output file, including extension. Must be used in conjunction with --output-type.
+		--version	: show version.
 """
 
 __scriptname__	= "Resume Ranker"
@@ -31,9 +33,11 @@ __email__ 		= "corey.m.farmer@gmail.com"
 __status__ 		= "Development"
 
 
-import os, pyPdf
+import os, pyPdf, csv
 
 from docopt import docopt
+from os import sys, path
+
 
 from docx import Document
 from docx.document import Document as _Document
@@ -49,7 +53,7 @@ class Environment:
 	validity of files and directories, etc.
 	"""
 	
-	def __init__(self, dir, keyword_file):
+	def __init__(self, dir=None, keyword_file=None):
 		self.dir 			= dir
 		self.keyword_file	= keyword_file
 		
@@ -62,14 +66,14 @@ class Environment:
 		
 	def is_valid_directory(self):
 		# check if the directory provided by the user for files exists
-		if dir and not os.path.isdir(dir) :
+		if dir and not os.path.isdir(self.dir) :
 			raise Exception("The directory provided is not valid or found.")
 		
 		return self
 	
 	def is_valid_keyword_file(self):
 		# check if the file provided by the user for keywords exists
-		if not os.path.isfile(keyword_file):
+		if not os.path.isfile(self.keyword_file):
 			raise Exception("The keyword file path provided is not valid or does not exist.")
 
 		return self
@@ -308,6 +312,7 @@ class File :
 				# add the file information to the file buffer to be used for the last iteration
 				self.file_buf.append({ 	 'orig_path'	: path
 										,'orig_name'	: filename_li[0]
+										,'dir'			: self.dir.rstrip('//')
 										,'percent_rank' : rank
 										,'total_count'  : total_count
 									})
@@ -319,26 +324,65 @@ class File :
 		# if file_buf has information in it
 		if len(self.file_buf) :
 			# resort the file list based on the total_count, in descending order so the first element is always the highest count	
-			files = sorted(self.file_buf, key=lambda k: k['total_count'], reverse=True)
+			self.files = sorted(self.file_buf, key=lambda k: k['total_count'], reverse=True)
 
 			# iterate over the newly sorted files list				
-			for i, d in enumerate(files):
-				percentile = self.get_percentile(d, files[0])
+			for i, d in enumerate(self.files):
+				percentile = self.get_percentile(d, self.files[0])
 
 				# set the new filename with percentile and count included in filename
-				new_filename = "%s/%s%% [%s] - %s" % (self.dir, percentile, d['total_count'], d['orig_name'])
+				d['new_name'] = "%s%% [%s] - %s" % (percentile, d['total_count'], d['orig_name'])
+				d['percentile'] = percentile
 				
-				# print the new filename to the console for the user
-				print( os.path.basename(new_filename) )		
-	
-				# only rename the files if the rename option is set to true			
-				if rename :
-					self.rename_file(d['orig_path'], new_filename)
-				
+		# return self for method chaining
+		return self						
+		
 
 	def get_percentile(self, d, f):
 		return round( ( float(d['total_count']) / float(f['total_count']) ) * 100, 2)
 
+
+
+	def finish_output(self, output_type=None, output_file=None, rename=None, verbose=None) :
+		"""
+		Finally output the results in the preferred method specified by the user.  Or defaulted to file renaming.
+		"""
+		
+		try :
+			f = None
+			
+			# open the file pointer if output_file is specified
+			if output_file :
+				f = open(output_file, 'w')
+			
+			# if the file type is csv then initialize the csv writer object
+			if output_type and output_type.upper() == 'CSV' : 
+				writer = csv.writer(f)
+				# write the header row to the 
+				writer.writerow( ('Percentile', 'Total Count', 'File Name') )
+			
+			for i, d in enumerate(self.files) :
+			
+				if verbose:
+					# print the new filename to the console for the user
+					print( os.path.basename(d['new_name']) )		
+			
+				# only rename the files if the rename option is set to true			
+				if rename:
+					self.rename_file(d['orig_path'], "%s/%s" % (d['dir'], d['new_name']))
+	
+				# append the filename to a string to be used to write to a file at the end of this iteration
+				if output_type and output_type.upper() == 'TXT' :
+					f.write( "%s\n" % d['new_name'] )
+				
+				if output_type and output_type.upper() == 'CSV' :
+					writer.writerow( (d['percentile'], d['total_count'], d['new_name']) )
+				
+		finally :
+			# close the file pointer if it exists
+			if f :
+				f.close()
+			
 
 	def rename_file(self, opath, npath):
 		# rename the file name with the new rank
@@ -358,10 +402,22 @@ if __name__ == "__main__" :
 	verbosity 		= docopt_args["-v"]
 	rename			= docopt_args["--rename"] or 'YES'
 	dir				= docopt_args["--dir"]
-	keyword_file 	= docopt_args["--keyword_file"]
+	keyword_file 	= docopt_args["--keyword-file"]
+	output_type		= docopt_args["--output-type"]
+	output_file		= docopt_args["--output-file"]
+	
+	## -------------- CLI Argument Normalization ---------------- ##
 	
 	# normalize the rename option text to True/False
 	rename = True if rename and rename.upper() == 'YES' else False
+	
+	# ensure the user input conforms to the available output types
+	if output_type and output_type.upper() not in ['CSV', 'TXT']:
+		raise Exception("Invalid value supplied to --output-type argument.  See --help for details.")
+		
+		# ensure the output file is a valid directory first
+		e = Environment(path.dirname(output_file)).is_valid_directory()
+	
 	
 	try :
 		# instantiate the environment object where we will check that all environment paths and file names are valid
@@ -376,7 +432,8 @@ if __name__ == "__main__" :
 		f = File(e.dir, e.keyword_file).get_keyword_list()\
 			.get_files(valid_types)\
 			.file_iterator()\
-			.calc_percentile(rename)
+			.calc_percentile(rename)\
+			.finish_output(output_type, output_file, rename, verbosity)
 
 			
 						
