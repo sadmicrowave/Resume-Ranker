@@ -1,0 +1,6 @@
+02/07/2017 - Corey Farmer
+	- Initial creation and commit
+	- updated documentation
+	- provide CLI options for result printing
+	- added tests using unittest module
+	- updated for Python3.x compatibility
