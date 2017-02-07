@@ -212,12 +212,8 @@ class Rank :
 		word_percentage = round(float(100)/float(len(self.keywords)), 2)
 		# iterate over list of keywords	
 		for keyword in self.keywords :
-			multiplier 	= 1 
+			keyword, multiplier = self.get_multiplier(keyword)
 			
-			# set the multiplier if found in the file
-			if ' *' in keyword :
-				keyword,multiplier = keyword.split(' *')
-				
 			# was the keyword found in the file? increase overall percentage if true
 			rank += word_percentage if keyword.upper() in text.upper() else 0
 			
@@ -226,6 +222,19 @@ class Rank :
 						
 		return (rank,count)
 			
+	
+	def get_multiplier(self, keyword):
+		"""
+		Split the keyword on multiplier delimiter if found. Otherwise provide 1 for multiplier
+		"""
+		
+		multiplier 	= 1 
+		# set the multiplier if found in the file
+		if ' *' in keyword :
+			keyword,multiplier = keyword.split(' *')
+		
+		return (keyword, multiplier)
+		
 		
 
 
@@ -236,7 +245,7 @@ class File :
 	gathering list of valid files, acting upon that list, and renaming files.
 	"""
 	
-	def __init__(self, dir, keyword_file):
+	def __init__(self, dir=None, keyword_file=None):
 		self.dir 			= dir
 		self.keyword_file 	= keyword_file
 		self.keywords_list	= []
@@ -244,10 +253,12 @@ class File :
 		self.files			= None
 		
 		
-	def get_keyword_list(self):
+	def get_keyword_list(self, keyword_file=None):
 		"""
 		Create the list of keywords from the keywords file defined by user.
 		"""
+		# allow keyword file override
+		self.keyword_file = keyword_file or self.keyword_file
 		
 		with open(self.keyword_file, 'r') as f:
 			content = f.readlines()
