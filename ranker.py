@@ -291,7 +291,7 @@ class File :
 		# iterate over the valid files list
 		for f in self.files :
 			# remove the last character in the dir string if it is a slash for another directory
-			path = "%s/%s" % ( self.dir.rstrip('//'), f )
+			path = os.path.join( self.dir.rstrip('//'), f )
 			
 			# instantiate an empty parsing object
 			p = Parsing(path)
@@ -369,7 +369,7 @@ class File :
 			
 				# only rename the files if the rename option is set to true			
 				if rename:
-					self.rename_file(d['orig_path'], "%s/%s" % (d['dir'], d['new_name']))
+					self.rename_file( d['orig_path'], os.path.join(d['dir'], d['new_name']) )
 	
 				# append the filename to a string to be used to write to a file at the end of this iteration
 				if output_type and output_type.upper() == 'TXT' :
