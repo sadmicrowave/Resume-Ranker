@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright (C) 2015 Emerus, Holdings
+# Copyright (C) 2017 Corey Farmer
 #
 # This file is part of Resume Ranker.
 #
