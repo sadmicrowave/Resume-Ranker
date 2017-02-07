@@ -23,7 +23,7 @@ Resume Ranker is a CLI script built on [`Python 2.7.10`](https://www.python.org/
 
 ### The Keyword File
 
-The keyword file is a runtime requirement and must be supplied as an argument of the script at the time of execution.  A sample file can be found here: [`keyword_file`](/documentation/samples/keywords.txt).  
+The keyword file is a runtime requirement and must be supplied as an argument of the script at the time of execution.  A sample file can be found here: [`keyword_file`](/tests/samples/keywords.txt).  
 
 The example provides keywords, separated by line breaks (with spaces allowed in the keyword(s)) followed by a keyword weight, if desired.  The weight is multiplied by the total occurrences of the word in the file to produce a heavier weight for each weighted word, compared to other words.  
 
