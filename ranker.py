@@ -174,10 +174,12 @@ class Parsing:
 		
 		docText = ''
 		# open the file, with read/binary priviledges
-		pdf = PyPDF2.PdfFileReader(open(self.file, 'rb'))
+		f = open(self.file, 'rb')
+		pdf = PyPDF2.PdfFileReader(f)
 		for page in pdf.pages :
 			docText += page.extractText()
 		
+		f.close()
 		return docText.strip() or None
 
 	def parse_txt_doc(self):
