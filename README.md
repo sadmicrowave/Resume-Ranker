@@ -1,9 +1,4 @@
 
-### Table of contents
-
-[TOC]
-
-
 Resume Ranker
 ===================
 
@@ -61,34 +56,5 @@ As of this time, Resume Ranker only iterates over the following file types `.pdf
 
 > - This project is accepting merge requests to extend functionality.
 > - Please review the [CONTRIBUTING.md](/documentation/CONTRIBUTING.md) documentation before beginning development.
-
-
-
-### UML diagrams
-
-```flow
-st=>start: Start
-e=>end
-cond1=>condition: Valid Directory?
-cond2=>condition: Valid Keyword File?
-op1=>operation: Iterate DIR Files
-op2=>operation: Match Keywords
-op3=>operation: Determine Percentile
-cond3=>condition: Rename Files?
-op4=>operation: Rename Files
-
-st->cond1
-cond1(yes)->cond2
-cond1(no)->e
-cond2(yes)->op1
-cond2(no)->e
-op1->op2
-op2->op3
-op3->cond3
-cond3(yes)->op4
-cond3(no)->e
-op4->e
-```
-
 
 
