@@ -25,5 +25,5 @@ setup(name='Resume Ranker',
       description='Rank resumes based on keywords',
       author='Corey Farmer',
       author_email='corey.m.farmer@gmail.com',
-      packages=['docopt', 'pyPdf', 'docx'],
+      packages=['docopt', 'PyPDF2', 'python-docx'],
      )

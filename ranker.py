@@ -33,7 +33,7 @@ __email__ 		= "corey.m.farmer@gmail.com"
 __status__ 		= "Development"
 
 
-import os, pyPdf, csv
+import os, PyPDF2, csv
 
 from docopt import docopt
 from os import sys, path
@@ -174,7 +174,7 @@ class Parsing:
 		
 		docText = ''
 		# open the file, with read/binary priviledges
-		pdf = pyPdf.PdfFileReader(open(self.file, 'rb'))
+		pdf = PyPDF2.PdfFileReader(open(self.file, 'rb'))
 		for page in pdf.pages :
 			docText += page.extractText()
 		
