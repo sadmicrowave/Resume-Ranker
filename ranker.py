@@ -51,6 +51,11 @@ class Environment:
 	"""
 	Setup the environment for the script; including opening any required files, checking
 	validity of files and directories, etc.
+	
+	--
+	:param string|None dir		- string containing the directory for iteration containing files
+	:param string keyword_file	- string containing full file path to location of keyword file
+	:return Object Environment
 	"""
 	
 	def __init__(self, dir=None, keyword_file=None):
@@ -85,6 +90,10 @@ class Parsing:
 	This class is designed to contain all necessary file parsing methodologies.
 	Each file passed as object instantiation parameter will be parsed into plain text 
 	form and provided back to calling function.
+	
+	--
+	:param string path		- string containing the full file path of the file to open and parse into variable text
+	:return Object Parsing
 	"""
 	def __init__(self, path):
 		self.file 	 = path
@@ -200,6 +209,10 @@ class Rank :
 	"""
 	Use this function to determine the appropriate ranking/score of each file.
 	When instantiated, this class will first load the keywords file
+	
+	--
+	:param list keyword_list	- list containing each keyword found in keyword_file
+	:return Object Rank
 	"""
 	
 	def __init__(self, keyword_list):
@@ -249,6 +262,11 @@ class File :
 	"""
 	Use this method to hold any method related to file interaction including,
 	gathering list of valid files, acting upon that list, and renaming files.
+	
+	--
+	:param string|None dir		- string containing the directory for iteration containing files
+	:param string keyword_file	- string containing full file path to location of keyword file
+	:return Object File
 	"""
 	
 	def __init__(self, dir=None, keyword_file=None):
@@ -262,6 +280,10 @@ class File :
 	def get_keyword_list(self, keyword_file=None):
 		"""
 		Create the list of keywords from the keywords file defined by user.
+		
+		--
+		:param string keyword_file|None	- string containing full file path to location of keyword file
+		:return Object Environment
 		"""
 		# allow keyword file override
 		self.keyword_file = keyword_file or self.keyword_file
@@ -278,6 +300,13 @@ class File :
 
 
 	def get_files(self, valid_types):
+		"""
+		Get a list of valid files found in iteration directory.
+		
+		--
+		:param list valid_types	- list containing valid file extensions for parsing.
+		:return Object File
+		"""
 		# get a list of files in the directory (files only)
 		self.files = [f for f in os.listdir( self.dir ) if os.path.isfile(os.path.join(self.dir, f )) and os.path.splitext(f)[1] in valid_types and f != os.path.basename(self.keyword_file) and "~$" not in f]
 		
@@ -322,7 +351,7 @@ class File :
 		return self
 
 
-	def calc_percentile(self, rename):
+	def calc_percentile(self):
 		# if file_buf has information in it
 		if len(self.file_buf) :
 			# resort the file list based on the total_count, in descending order so the first element is always the highest count	
@@ -348,6 +377,12 @@ class File :
 	def finish_output(self, output_type=None, output_file=None, rename=None, verbose=None) :
 		"""
 		Finally output the results in the preferred method specified by the user.  Or defaulted to file renaming.
+		
+		--
+		:param string|None output_type	- user defined string containing the intended output file extension type from available values
+		:param string|None output_file	- user defined string of full path location and filename of output file
+		:param bool|None rename			- boolean flag defining whether original file names should be renamed with new filenames including percentile
+		:param bool|None verbose		- boolean flag defining whether output resulting filenames should be printed to console
 		"""
 		
 		try :
@@ -434,7 +469,7 @@ if __name__ == "__main__" :
 		f = File(e.dir, e.keyword_file).get_keyword_list()\
 			.get_files(valid_types)\
 			.file_iterator()\
-			.calc_percentile(rename)\
+			.calc_percentile()\
 			.finish_output(output_type, output_file, rename, verbosity)
 
 			
