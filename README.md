@@ -14,6 +14,12 @@ Use the script's built-in help command to view extended usages and argument defi
 
 Please see the **[requirements documentation](/documentation/requirements.md)** for system requirements and more information about the supported operating systems.
 
+### Installation
+
+This program does not require installation.  Instead, it is meant to perform the necessary resume processing at runtime.  The only necessary setup is python package installation; which are found within the included `pip` `requirements.txt` file.  To install the packages, you will need `pip` installed on your computer, and issue the following command from the project root folder:
+
+    $ pip install -r requirements.txt
+
 ### Usage
 
 Resume Ranker is a CLI script built on [`Python 2.7.10`](https://www.python.org/downloads/release/python-2710/) and is executed using the syntax formation below.  Where the required arguments `--dir` references the directory where the files to iterate are found, and `--keyword_file` references a valid keyword file.
